@@ -17,6 +17,16 @@ const storage = multer.diskStorage({
     }
 });
 
+const CheckDir = (req, res, next) => {
+    try {
+        fs.readdirSync(filePath);
+    } catch (error) {
+        console.log("폴더가 없으므로 생성합니다.");
+        fs.mkdirSync(filePath);
+    }
+    next();
+}
+
 const upload = multer({ storage: storage });
 
 router.get('/' , (req, res) => {
@@ -31,7 +41,7 @@ router.get('/' , (req, res) => {
     </html>`)
 });
 
-router.post('/', upload.single('file'), (req, res, next) => {
+router.post('/', CheckDir, upload.single('file'), (req, res, next) => {
     const file = req.file;
     if (!file) {
         const error = new Error('Please upload a file');
